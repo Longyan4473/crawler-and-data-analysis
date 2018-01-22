@@ -1,0 +1,43 @@
+#爬取百思不得姐网站的视频
+
+import requests
+import urllib.request
+from pyquery import PyQuery as pq
+from urllib.request import urlretrieve
+
+def get_videos(pages):
+    url_base = 'http://www.budejie.com/video'
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'}
+
+    for page in range(1, pages+1):
+        url = url_base + '/' + str(page)
+        response = requests.get(url=url, headers=headers)
+        html = response.text
+        # print(html)
+        video_title_list = []
+        doc = pq(html)
+        video_urls = doc('.j-r-list-tool-r .j-r-list-tool-l-down a').items()
+        video_titles = doc('.j-r-list-tool-r .j-r-list-tool-l-down').items()
+
+
+        for video_title in video_titles:
+            video_title_list.append(video_title.attr('data-text'))
+        print(video_title_list)
+        print(len(video_title_list))
+
+        video_url_list = []
+        for video_url in video_urls:
+            video_url_list.append(video_url.attr('href'))
+            # urlretrieve(video_url, '%s.mp4' % filename)
+
+        for i in range(0, len(video_url_list)):
+            print('正在下载第', page, '页，第', i+1, '个视频')
+            urlretrieve(video_url_list[i], '%s.mp4' % video_title_list[i])
+
+        print(video_url_list)
+        print(len(video_url_list))
+
+
+if __name__ == '__main__':
+    pages = 10
+    get_videos(pages)
